@@ -1,0 +1,80 @@
+{% comment %} AC Transit API Response:
+- bustime-response.prd[] array of predictions
+- Each prediction has: rt (route), des (destination), prdtm (predicted time), vid (vehicle), dly (delay flag)
+{% endcomment %}
+
+{% assign pst_offset = 3600 | times: -8 %}
+{% assign now_utc = "now" | date: "%s" %}
+{% assign now_pst = now_utc | plus: pst_offset %}
+
+{% comment %} Get route filter if specified {% endcomment %}
+{% assign route_filter = trmnl.plugin_settings.custom_fields_values.route_filter | default: "" %}
+
+{% assign bt_response = bustime-response %}
+{% assign predictions = bt_response.prd %}
+
+{% if predictions and predictions.size > 0 %}
+  <div class="title_bar">
+<img class="image" src="https://usetrmnl.com/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MTY1MjY4MjksInB1ciI6ImJsb2JfaWQifX0=--7d8a6b9a8829deeea72429db669ea64c191946b8/noun-bus-stop-6545346.png">
+    <span class="title">{{ predictions[0].stpnm }}</span>
+  </div>
+{% endif %}
+
+<div class="layout layout--col gap--small">
+  <div class="header">
+    {% if route_filter and route_filter != "" %}
+      <div class="label label--small label--inverted spacing-xs">
+        Routes: {{ route_filter }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="grid grid--cols-3 gap--small">
+    {% assign bus_count = 0 %}
+
+    {% if predictions %}
+      {% for pred in predictions %}
+        {% comment %} Apply route filter if specified {% endcomment %}
+        {% if route_filter and route_filter != "" %}
+          {% assign filter_string = "," | append: route_filter | append: "," %}
+          {% assign search_string = "," | append: pred.rt | append: "," %}
+          {% unless filter_string contains search_string %}
+            {% continue %}
+          {% endunless %}
+        {% endif %}
+
+        {% comment %} Limit to 6 buses after filtering {% endcomment %}
+        {% if bus_count >= 6 %}
+          {% break %}
+        {% endif %}
+
+        <div class="item bg--black rounded--large" style="padding: 16px;">
+          <div class="content layout--col gap--xsmall card-content">
+            <div class="flex flex--between flex--center-y gap--small route-dest-row">
+              <div class="value value--medium text--gray-60">{{ pred.rt }}</div>
+              <div class="label label--small text--gray-50" data-clamp="2" style="line-height: .8;">{{ pred.des }}</div>
+            </div>
+
+            <div class="value value--large text--white" style="line-height: 1.0;">
+              {% if pred.prdtm %}
+                {{ pred.prdtm | date: "%-I:%M %p" }}
+              {% else %}
+                --
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% assign bus_count = bus_count | plus: 1 %}
+      {% endfor %}
+    {% endif %}
+
+    {% if bus_count == 0 %}
+      <div class="item bg--black rounded--large" style="grid-column: 1 / -1;">
+        <div class="content layout--col gap--small">
+          <div class="value value--xlarge text--white">⚠️</div>
+          <div class="label label--small text--gray-40">No buses available</div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>

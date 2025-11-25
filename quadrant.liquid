@@ -1,0 +1,96 @@
+{% comment %} AC Transit API Response Structure {% endcomment %}
+
+{% assign pst_offset = 3600 | times: -8 %}
+{% assign now_utc = "now" | date: "%s" %}
+{% assign now_pst = now_utc | plus: pst_offset %}
+
+{% assign route_filter = trmnl.plugin_settings.custom_fields_values.route_filter | default: "" %}
+
+{% assign bt_response = bustime-response %}
+{% assign predictions = bt_response.prd %}
+
+{% if predictions and predictions.size > 0 %}
+  <div class="title_bar">
+<img class="image" src="https://usetrmnl.com/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MTY1MjY4MjksInB1ciI6ImJsb2JfaWQifX0=--7d8a6b9a8829deeea72429db669ea64c191946b8/noun-bus-stop-6545346.png">
+    <span class="title">{{ predictions[0].stpnm }}</span>
+  </div>
+{% endif %}
+
+<div class="layout layout--col gap--small">
+  {% assign seen_combos = "" %}
+  {% assign card_count = 0 %}
+
+  {% if predictions %}
+    {% for pred in predictions %}
+      {% if route_filter and route_filter != "" %}
+        {% assign filter_string = "," | append: route_filter | append: "," %}
+        {% assign search_string = "," | append: pred.rt | append: "," %}
+        {% unless filter_string contains search_string %}
+          {% continue %}
+        {% endunless %}
+      {% endif %}
+
+      {% comment %} Create unique key for route + destination {% endcomment %}
+      {% assign combo_key = pred.rt | append: "|" | append: pred.des %}
+
+      {% comment %} Check if we've already seen this combo {% endcomment %}
+      {% unless seen_combos contains combo_key %}
+        {% comment %} Limit to 2 unique cards {% endcomment %}
+        {% if card_count >= 2 %}
+          {% break %}
+        {% endif %}
+
+        {% comment %} Mark this combo as seen {% endcomment %}
+        {% assign seen_combos = seen_combos | append: "||" | append: combo_key %}
+
+        <div class="item bg--black rounded--medium" style="padding: 5px;">
+          <div class="content layout--col gap--xsmall card-content">
+            <div class="flex flex--between flex--center-y gap--xsmall route-dest-row">
+              <div class="value value--medium text--gray-60">{{ pred.rt }}</div>
+              <div class="label label--small text--gray-50 dest-text" data-clamp="2">{{ pred.des }}</div>
+            </div>
+
+            <div class="flex gap--small flex--wrap times-row">
+              {% assign time_count = 0 %}
+              {% comment %} Collect up to 3 times for this route+dest combo {% endcomment %}
+              {% for time_pred in predictions %}
+                {% if route_filter and route_filter != "" %}
+                  {% assign filter_string = "," | append: route_filter | append: "," %}
+                  {% assign search_string = "," | append: time_pred.rt | append: "," %}
+                  {% unless filter_string contains search_string %}
+                    {% continue %}
+                  {% endunless %}
+                {% endif %}
+
+                {% if time_pred.rt == pred.rt and time_pred.des == pred.des %}
+                  {% if time_count < 3 %}
+                   <div class="bg--white rounded--small text--black">
+                    <div class="value value--medium time-vertical">
+                      {% if time_pred.prdtm %}
+                        {{ time_pred.prdtm | date: "%-I:%M %p" }}
+                      {% else %}
+                        --
+                      {% endif %}
+                    </div>
+                     </div>
+                    {% assign time_count = time_count | plus: 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% assign card_count = card_count | plus: 1 %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% if card_count == 0 %}
+    <div class="item bg--black card-quad">
+      <div class="content layout--col gap--small">
+        <div class="value value--xlarge text--white">⚠️</div>
+        <div class="label label--small text--gray-40">No buses</div>
+      </div>
+    </div>
+  {% endif %}
+</div>

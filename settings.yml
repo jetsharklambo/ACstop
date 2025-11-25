@@ -1,0 +1,36 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://api.actransit.org/transit/actrealtime/prediction?stpid={{ ac_stop_id }}&token={{ ac_api_token }}
+polling_headers: ''
+polling_body: ''
+id: 183449
+custom_fields:
+- keyname: ac_stop_id
+  field_type: text
+  name: AC Transit Stop ID
+  description: Enter your AC Transit stop ID (like 55558). Find your stop ID at <a href="https://www.actransit.org/actransit-realtime">AC Transit</a> (stops near me).
+  optional: false
+- keyname: ac_api_token
+  field_type: text
+  name: AC Transit API Token
+  description: Your API token from <a href="https://api.actransit.org/transit/Account/Register">AC Transit</a>.
+  optional: false
+- keyname: route_filter
+  field_type: text
+  name: Route Filter (Optional)
+  optional: true
+  default: ''
+  description: Comma-separated route numbers to filter (e.g., "6,51,800"). Leave blank for all routes.
+- keyname: author_bio
+  field_type: author_bio
+  name: About This Plugin
+  description: Real-time AC Transit bus departures at a glance. Displays next departures for any AC Transit stop in the Bay Area.
+  github_url: https://github.com/jetsharklambo/ACstop
+  learn_more_url: https://maximo.is/jetsharklambo
+  email_address: jetsharklambo+trmnlcom@gmail.com
+name: ACTransit Stop
+refresh_interval: 30
