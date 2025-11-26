@@ -33,4 +33,4 @@ custom_fields:
   learn_more_url: https://maximo.is/jetsharklambo
   email_address: jetsharklambo+trmnlcom@gmail.com
 name: ACTransit Stop
-refresh_interval: 30
+refresh_interval: 15
