@@ -2,7 +2,7 @@
 
 A TRMNL e-ink display plugin that shows real-time bus arrivals at any AC Transit stop.
 
-![AC Transit Logo](https://www.actransit.org/sites/default/files/actransit-logo.svg)
+![ACstop](https://github.com/jetsharklambo/ACstop/blob/main/ACstop.png)
 
 ## Features
 
@@ -81,6 +81,8 @@ Choose from 4 responsive layouts optimized for different screen configurations:
 - Efficient use of horizontal space
 - 4-column grid layout
 
+![ACstop](https://github.com/jetsharklambo/ACstop/blob/main/MU1.png)
+
 ### Half Vertical (Vertical stack) - `half_vertical.liquid`
 **Best for:** Vertical half-screen displays showing 4 upcoming buses
 - Tight vertical spacing
@@ -92,6 +94,8 @@ Choose from 4 responsive layouts optimized for different screen configurations:
 - Medium time display (1.9em)
 - Balanced information density
 - 2-column grid for small spaces
+
+![ACstop](https://github.com/jetsharklambo/ACstop/blob/main/MU2.png)
 
 ## Configuration Details
 
@@ -176,5 +180,6 @@ https://github.com/jetsharkvibes/ACstop/issues
 - Real-time bus arrivals with route indicators
 - Route filtering support
 - Store-ready optimization (≤6 inline styles per template)
+
 
 
